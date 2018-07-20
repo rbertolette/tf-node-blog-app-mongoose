@@ -10,34 +10,33 @@ mongoose.Promise = global.Promise;
 // config.js is where we control constants for entire
 // app like PORT and DATABASE_URL
 const { PORT, DATABASE_URL } = require("./config");
-const { Restaurant } = require("./models");
+const { Blog } = require("./models");
 
 const app = express();
 app.use(express.json());
 
 // GET requests to /restaurants => return 10 restaurants
-app.get("/restaurants", (req, res) => {
-  Restaurant.find()
-    // we're limiting because restaurants db has > 25,000
-    // documents, and that's too much to process/return
-    .limit(10)
-    // success callback: for each restaurant we got back, we'll
-    // call the `.serialize` instance method we've created in
-    // models.js in order to only expose the data we want the API return.    
-    .then(restaurants => {
+app.get("/blogs", (req, res) => {
+  Blog.find()
+  // no need to limit, this will never have many records
+  //    .limit(10)
+  // success callback: for each blog we got back, we'll
+  // call the `.serialize` instance method we've created in
+  // models.js in order to only expose the data we want the API return.
+    .then(blogs => {
       res.json({
-        restaurants: restaurants.map(restaurant => restaurant.serialize())
+        blogs: blogs.map(blog => blog.serialize())
       });
     })
     .catch(err => {
       console.error(err);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({message: "Internal server error"});
     });
 });
 
 // can also request by ID
-app.get("/restaurants/:id", (req, res) => {
-  Restaurant
+app.get("/blogs/:id", (req, res) => {
+  Blog
     // this is a convenience method Mongoose provides for searching
     // by the object _id property
     .findById(req.params.id)
@@ -48,7 +47,7 @@ app.get("/restaurants/:id", (req, res) => {
     });
 });
 
-app.post("/restaurants", (req, res) => {
+app.post("/blogs", (req, res) => {
   const requiredFields = ["name", "borough", "cuisine"];
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -59,7 +58,7 @@ app.post("/restaurants", (req, res) => {
     }
   }
 
-  Restaurant.create({
+  Blog.create({
     name: req.body.name,
     borough: req.body.borough,
     cuisine: req.body.cuisine,
@@ -73,7 +72,7 @@ app.post("/restaurants", (req, res) => {
     });
 });
 
-app.put("/restaurants/:id", (req, res) => {
+app.put("/blogs/:id", (req, res) => {
   // ensure that the id in the request path and the one in request body match
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     const message =
@@ -95,15 +94,15 @@ app.put("/restaurants/:id", (req, res) => {
     }
   });
 
-  Restaurant
+  Blog
     // all key/value pairs in toUpdate will be updated -- that's what `$set` does
     .findByIdAndUpdate(req.params.id, { $set: toUpdate })
     .then(restaurant => res.status(204).end())
     .catch(err => res.status(500).json({ message: "Internal server error" }));
 });
 
-app.delete("/restaurants/:id", (req, res) => {
-  Restaurant.findByIdAndRemove(req.params.id)
+app.delete("/blogs/:id", (req, res) => {
+  Blog.findByIdAndRemove(req.params.id)
     .then(restaurant => res.status(204).end())
     .catch(err => res.status(500).json({ message: "Internal server error" }));
 });
