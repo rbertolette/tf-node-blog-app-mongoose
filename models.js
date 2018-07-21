@@ -2,8 +2,8 @@
 
 const mongoose = require("mongoose");
 
-// this is our schema to represent a blog
-const blogSchema = mongoose.Schema({
+// this is our schema to represent a post
+const postSchema = mongoose.Schema({
   title: { type: String, required: true },
   author {
     firstname: { type: String, required: true },
@@ -14,14 +14,14 @@ const blogSchema = mongoose.Schema({
 
 // *virtuals* (http://mongoosejs.com/docs/guide.html#virtuals)
 // creates a virtual (calculated) field from the author object
-blogSchema.virtual("fullName").get(function() {
+postSchema.virtual("fullName").get(function() {
   return `${this.author.firstname} ${this.author.lastname}`.trim();
 });
 
 // this is an *instance method* which will be available on all instances
 // of the model. This method will be used to return an object that only
 // exposes *some* of the fields we want from the underlying data
-blogSchema.methods.serialize = function() {
+postSchema.methods.serialize = function() {
   return {
     id: this._id,
     title: this.title,
@@ -31,6 +31,6 @@ blogSchema.methods.serialize = function() {
 
 // note that all instance methods and virtual properties on our
 // schema must be defined *before* we make the call to `.model`.
-const Blog = mongoose.model("Blog", blogSchema);
+const Post = mongoose.model("Post", postSchema);
 
-module.exports = { Blog };
+module.exports = { Post };
