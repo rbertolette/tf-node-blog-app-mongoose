@@ -15,14 +15,15 @@ const { Post } = require("./models");
 const app = express();
 app.use(express.json());
 
-// GET requests to /restaurants => return 10 restaurants
+/**
+ * Get all posts, no limit for now, as there are
+ */
 app.get("/posts", (req, res) => {
   Post.find()
-  // no need to limit, this will never have many records
+  // The next line could be uncommented to limit the number of posts returned
   //    .limit(10)
   // success callback: for each post we got back, we'll
-  // call the `.serialize` instance method we've created in
-  // models.js in order to only expose the data we want the API return.
+  // call the `.serialize` instance method in models.js
     .then(posts => {
       res.json({
         posts: posts.map(post => post.serialize())
@@ -34,7 +35,9 @@ app.get("/posts", (req, res) => {
     });
 });
 
-// can also request by ID
+/**
+ * Get info of one post by id
+ */
 app.get("/posts/:id", (req, res) => {
   Post
     // this is a convenience method Mongoose provides for searching
@@ -47,8 +50,11 @@ app.get("/posts/:id", (req, res) => {
     });
 });
 
+/**
+ * Insert a new post
+ */
 app.post("/posts", (req, res) => {
-  const requiredFields = ["title", "author.firstname", "author.lastname", "content"];
+  const requiredFields = ["title", "author.firstName", "author.lastName", "content"];
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -57,12 +63,12 @@ app.post("/posts", (req, res) => {
       return res.status(400).send(message);
     }
   }
-
+  // See models.js
   Post.create({
     title: req.body.title,
     author: {
-      firstname: req.body.author.firstname,
-      lastname: req.body.author.lastname,
+      firstName: req.body.author.firstName,
+      lastName: req.body.author.lastName,
     },
     content: req.body.content
   })

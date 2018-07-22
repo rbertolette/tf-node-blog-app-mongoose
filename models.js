@@ -5,17 +5,18 @@ const mongoose = require("mongoose");
 // this is our schema to represent a post
 const postSchema = mongoose.Schema({
   title: { type: String, required: true },
-  author {
-    firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
-  }
-  content: { type: String, required: true }
+  author: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+  },
+  content: { type: String, required: true },
+  created: { type: Date, default: Date.now }
 });
 
 // *virtuals* (http://mongoosejs.com/docs/guide.html#virtuals)
 // creates a virtual (calculated) field from the author object
 postSchema.virtual("fullName").get(function() {
-  return `${this.author.firstname} ${this.author.lastname}`.trim();
+  return `${this.author.firstName} ${this.author.lastName}`.trim();
 });
 
 // this is an *instance method* which will be available on all instances
@@ -25,7 +26,8 @@ postSchema.methods.serialize = function() {
   return {
     id: this._id,
     title: this.title,
-    author: this.fullName
+    author: this.fullName,
+    created: this.created.getTime().toString()
   };
 };
 
