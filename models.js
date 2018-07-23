@@ -10,6 +10,8 @@ const postSchema = mongoose.Schema({
     lastName: { type: String, required: true },
   },
   content: { type: String, required: true },
+  // nomgo 4 has an ability to store timestamps, but to keep this compaitible
+  // I'm using at Date instead
   created: { type: Date, default: Date.now }
 });
 

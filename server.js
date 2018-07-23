@@ -54,7 +54,7 @@ app.get("/posts/:id", (req, res) => {
  * Insert a new post
  */
 app.post("/posts", (req, res) => {
-  const requiredFields = ["title", "author.firstName", "author.lastName", "content"];
+  const requiredFields = ["title", "firstName", "lastName", "content"];
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -67,8 +67,8 @@ app.post("/posts", (req, res) => {
   Post.create({
     title: req.body.title,
     author: {
-      firstName: req.body.author.firstName,
-      lastName: req.body.author.lastName,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
     },
     content: req.body.content
   })
@@ -93,11 +93,18 @@ app.put("/posts/:id", (req, res) => {
   // if the user sent over any of the updatableFields, we udpate those values
   // in document
   const toUpdate = {};
-  const updateableFields = ["name", "borough", "cuisine", "address"];
+  const updateableFields = ["title", "firstName", "lastName", "content"];
 
   updateableFields.forEach(field => {
     if (field in req.body) {
-      toUpdate[field] = req.body[field];
+      // assume the field to be set is not part of author
+      let myField = field;
+      if (field.indexOf("Name") != -1){
+        // Set the field for names to update in the author object
+        myField = "author." + field;
+      }
+      console.log(myField);
+      toUpdate[myField] = req.body[field];
     }
   });
 
