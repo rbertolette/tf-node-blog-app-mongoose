@@ -54,7 +54,7 @@ app.get("/posts/:id", (req, res) => {
  * Insert a new post
  */
 app.post("/posts", (req, res) => {
-  const requiredFields = ["title", "firstName", "lastName", "content"];
+  const requiredFields = ["title", "author",  "content"];
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -62,13 +62,25 @@ app.post("/posts", (req, res) => {
       console.error(message);
       return res.status(400).send(message);
     }
+    else if (field == "author"){
+      const authorFields = ['firstName', 'lastName'];
+      for (let j = 0; j< authorFields.length; j++){
+        const authorField = authorFields[j];
+        if (!(authorField in req.body.author)){
+          const message = `Missing author.\`${authorField}\` in request body`;
+          console.error(message);
+          return res.status(400).send(message);
+        }
+      }
+    }
+
   }
   // See models.js
   Post.create({
     title: req.body.title,
     author: {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
+      firstName: req.body.author.firstName,
+      lastName: req.body.author.lastName,
     },
     content: req.body.content
   })
@@ -93,18 +105,25 @@ app.put("/posts/:id", (req, res) => {
   // if the user sent over any of the updatableFields, we udpate those values
   // in document
   const toUpdate = {};
-  const updateableFields = ["title", "firstName", "lastName", "content"];
+  const updateableFields = ["title", "author", "content"];
 
   updateableFields.forEach(field => {
     if (field in req.body) {
       // assume the field to be set is not part of author
       let myField = field;
-      if (field.indexOf("Name") != -1){
-        // Set the field for names to update in the author object
-        myField = "author." + field;
+      if (field == "author"){
+        const authorFields = ['firstName', 'lastName'];
+        authorFields.forEach(authorField => {
+          if (authorField in req.body.author){
+            // Set the field for names to update in the author object
+            myField = "author." + authorField;
+            toUpdate[myField] = req.body.author[authorField];
+          }
+        })
       }
-      console.log(myField);
-      toUpdate[myField] = req.body[field];
+      else {
+        toUpdate[myField] = req.body[field];
+      }
     }
   });
 
