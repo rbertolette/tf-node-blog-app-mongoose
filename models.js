@@ -31,6 +31,14 @@ postSchema.methods.serialize = function() {
     content: this.content,
     author: this.fullName,
     created: this.created.getTime().toString()
+    // the tf solution used the following line
+
+    // created: this.created
+
+    // which results in something like:
+    // "2018-07-22T00:15:53.723Z" instead of the instructions:
+    // "1532218553723"
+    // the line I used get the desired results.
   };
 };
 
